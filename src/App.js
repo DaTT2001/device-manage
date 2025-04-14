@@ -1,22 +1,23 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './components/Login';
-import DeviceList from './components/DeviceList';
-import ForgotPassword from './components/ForgotPassword';
-import AddDevice from './components/AddDevice'; // Import AddDevice
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Login from './pages/Login';
+import DeviceList from './pages/DeviceList';
+import ForgotPassword from './pages/ForgotPassword';
+import AddDevice from './pages/AddDevice'; // Import AddDevice
+import Header from './layouts/Header';
+import Footer from './layouts/Footer';
 import { Box } from '@mui/material';
-import WasteReport from './components/WasteReport';
-import ConditionColorTable from './components/ConditionColorTable';
+import WasteReport from './pages/WasteReport';
+import ConditionColorTable from './pages/ConditionColorTable';
 import { DeviceProvider } from './context/DeviceContext';
 import { SnackbarProvider } from 'notistack';
-import EditDevice from './components/EditDevice';
+import EditDevice from './pages/EditDevice';
 import GlobalLoading from './components/GlobalLoading';
 import GlobalLoading2 from './components/GlobalLoading2';
 import EditDeviceContainer from './components/EditDeviceContainer';
-import Calibration from './components/Calibration';
+import Calibration from './pages/Calibration';
+import CalibrationPDFPage from './pages/CalibrationPDFPage';
 
 function App() {
   return (
@@ -110,6 +111,7 @@ const AppContent = () => {
           <Route path="/calibration" element={<Calibration />} />
           <Route path="/edit-device" element={<EditDeviceContainer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="calibration/:code" element={<CalibrationPDFPage />} />
         </Routes>
       </Box>
 
