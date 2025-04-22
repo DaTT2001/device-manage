@@ -18,6 +18,7 @@ import GlobalLoading2 from './components/GlobalLoading2';
 import EditDeviceContainer from './components/EditDeviceContainer';
 import Calibration from './pages/Calibration';
 import CalibrationPDFPage from './pages/CalibrationPDFPage';
+import DeviceDetailPage from './pages/DeviceDetailPage';
 
 function App() {
   return (
@@ -56,7 +57,7 @@ const AppContent = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+          // background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
           color: '#fff',
         }}
       >
@@ -107,11 +108,12 @@ const AppContent = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/edit-device/:code" element={<EditDevice />} />
+          <Route path="/edit-device/:documentId" element={<EditDevice />} />
           <Route path="/calibration" element={<Calibration />} />
           <Route path="/edit-device" element={<EditDeviceContainer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="calibration/:code" element={<CalibrationPDFPage />} />
+          <Route path="calibration/:documentId" element={<CalibrationPDFPage />} />
+          <Route path="/device-detail/:documentId" element={<DeviceDetailPage />} />
         </Routes>
       </Box>
 
@@ -123,10 +125,8 @@ const AppContent = () => {
 
 const PrivateRoute = ({ children }) => {
   const { token, user } = useAuth();
-  console.log('PrivateRoute - Token:', token, 'User:', user);
 
   if (!token || !user) {
-    console.log('No token or user, redirecting to /login');
     return <Navigate to="/login" replace />;
   }
   return children;

@@ -7,372 +7,293 @@ import {
   Paper,
   Alert,
   FormControlLabel,
+  Radio,
+  RadioGroup,
+  FormLabel,
   Checkbox,
 } from '@mui/material';
-import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
 import { useDevices } from '../context/DeviceContext';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+import { fields, initialValues, textFieldStyle } from '../utils/constants';
+import { addDeviceApi } from '../utils/apiHelpers';
+
+const validationSchema = Yup.object({
+  name: Yup.string().required('Tên thiết bị là bắt buộc'),
+  code: Yup.string().required('Mã thiết bị là bắt buộc'),
+  brand: Yup.string().required('Thương hiệu là bắt buộc'),
+  type: Yup.string().required('Loại thiết bị là bắt buộc'),
+  calibrationFrequency: Yup.number()
+    .required('Chu kỳ hiệu chuẩn là bắt buộc')
+    .positive('Chu kỳ hiệu chuẩn phải là số dương')
+    .integer('Chu kỳ hiệu chuẩn phải là số nguyên'),
+  phoneNumber: Yup.string()
+    .transform(value => (value === '' ? null : value))
+    .matches(/^\d+$/, 'Số điện thoại chỉ được chứa chữ số')
+    .nullable(),
+  cost: Yup.string()
+    .transform(value => (value === '' ? null : value))
+    .matches(/^\d+$/, 'Chi phí chỉ được chứa chữ số')
+    .nullable(),
+  // cost: Yup.number().nullable().positive('Chi phí phải là số dương'),
+  buyDate: Yup.string().nullable(),
+  lastCalibrationDate: Yup.string().nullable(),
+  calibrationType: Yup.string()
+    .oneOf(['self', 'external'], 'Loại hiệu chuẩn không hợp lệ')
+    .required('Loại hiệu chuẩn là bắt buộc'),
+  usedBy: Yup.array().of(Yup.string()).min(1, 'Vui lòng chọn ít nhất một mục'),
+});
+
 
 const AddDevice = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    brand: '',
-    selfCalibration: false,
-    externalCalibration: false,
-    lastCalibrationDate: null,
-    calibrationFrequency: '',
-    calibrationStandard: '',
-  });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const { allDevices, fetchAllDevices } = useDevices();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({
+    defaultValues: { ...initialValues, calibrationType: 'self' },
+    resolver: yupResolver(validationSchema),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (values) => {
     setError(null);
     setSuccess(null);
-
-    // Validate form
-    if (
-      !formData.name ||
-      !formData.code ||
-      !formData.brand ||
-      !formData.calibrationFrequency
-    ) {
-      setError('Vui lòng điền đầy đủ các trường bắt buộc.');
+    // Kiểm tra ngày mua và ngày hiệu chuẩn không lớn hơn ngày hiện tại
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (values.buyDate && values.buyDate > todayStr) {
+      setError('Ngày mua không được lớn hơn ngày hiện tại.');
+      enqueueSnackbar('Ngày mua không được lớn hơn ngày hiện tại.', { variant: 'error' });
       return;
     }
-    // Kiểm tra xem code đã tồn tại chưa
-    const isCodeExist = allDevices.some((device) => device.code === formData.code);
+    if (values.lastCalibrationDate && values.lastCalibrationDate > todayStr) {
+      setError('Ngày hiệu chuẩn không được lớn hơn ngày hiện tại.');
+      enqueueSnackbar('Ngày hiệu chuẩn không được lớn hơn ngày hiện tại.', { variant: 'error' });
+      return;
+    }
+    const trimmedValues = { ...values };
+    Object.keys(trimmedValues).forEach(key => {
+      if (typeof trimmedValues[key] === 'string') {
+        trimmedValues[key] = trimmedValues[key].trim();
+      }
+    });
+
+    const isCodeExist = allDevices.some(device => device.code === values.code);
     if (isCodeExist) {
       setError('Mã số thiết bị đã tồn tại. Vui lòng sử dụng mã số khác.');
+      enqueueSnackbar('Mã số thiết bị đã tồn tại. Vui lòng sử dụng mã số khác.', { variant: 'error' });
       return;
     }
-    console.log(formData);
-    
+
     try {
-      const response = await axios.post(
-        'http://192.168.10.87:1337/api/devices',
-        {
-          data: {
-            name: formData.name,
-            code: formData.code,
-            brand: formData.brand,
-            selfCalibration: formData.selfCalibration,
-            externalCalibration: formData.externalCalibration,
-            lastCalibrationDate: formData.lastCalibrationDate,
-            calibrationFrequency: parseInt(formData.calibrationFrequency),
-            calibrationStandard: formData.calibrationStandard,
-          },
+      const dataToSend = {
+        ...trimmedValues,
+        cost: trimmedValues.cost ? parseFloat(trimmedValues.cost) : null,
+        calibrationFrequency: parseInt(trimmedValues.calibrationFrequency),
+        usedBy: JSON.stringify(trimmedValues.usedBy),
+        selfCalibration: trimmedValues.calibrationType === 'self',
+        externalCalibration: trimmedValues.calibrationType === 'external',
+        result: 'OK',
+        wasteStatus: "no",
+      };
+
+      ['buyDate', 'lastCalibrationDate'].forEach(field => {
+        if (!dataToSend[field]) {
+          delete dataToSend[field];
         }
-      );
+      });
+      delete dataToSend.calibrationType;
+      console.log(dataToSend);
+
+      const response = await addDeviceApi(dataToSend);
+
       enqueueSnackbar(`Thêm thiết bị ${response.data.data.code} thành công!`, { variant: 'success' });
-      // setSuccess('Thêm thiết bị thành công!');
-      setFormData({
-        name: '',
-        code: '',
-        brand: '',
-        selfCalibration: false,
-        externalCalibration: false,
-        lastCalibrationDate: '',
-        calibrationFrequency: '',
-        calibrationStandard: '',
-      })
-      await fetchAllDevices()
+      reset();
+      await fetchAllDevices();
+      setSuccess('Thêm thiết bị thành công!');
     } catch (err) {
       console.error('Error adding device:', err);
       setError('Không thể thêm thiết bị. Vui lòng thử lại sau.');
-      enqueueSnackbar("Không thể thêm thiết bị. Vui lòng thử lại sau.", { variant: 'error' });
-    };
-  }
-    return (
-      <Container
-        maxWidth={false}
-        sx={{
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
-        }}
-      >
-        <Paper
-          elevation={6}
-          sx={{
-            padding: '2.5rem',
-            width: '100%',
-            maxWidth: '500px',
-            borderRadius: '12px',
-            backgroundColor: '#fff',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
-          }}
-        >
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{
-              color: '#fe2c55',
-              fontWeight: 'bold',
-              mb: 3,
-              fontFamily: 'Arial, sans-serif',
-            }}
-          >
-            Thêm Thiết Bị Đo Lường
-          </Typography>
-
-          {/* Thông báo */}
-          {error && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
-              {success}
-            </Alert>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <TextField
-              label="Tên thiết bị"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-            <TextField
-              label="Mã số"
-              name="code"
-              value={formData.code}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-            <TextField
-              label="Loại"
-              name="brand"
-              value={formData.brand}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="selfCalibration"
-                  checked={formData.selfCalibration}
-                  onChange={handleChange}
-                  sx={{
-                    color: '#25c2a0',
-                    '&.Mui-checked': {
-                      color: '#fe2c55',
-                    },
-                  }}
-                />
-              }
-              label="Tự hiệu chuẩn"
-              sx={{ mb: 1 }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="externalCalibration"
-                  checked={formData.externalCalibration}
-                  onChange={handleChange}
-                  sx={{
-                    color: '#25c2a0',
-                    '&.Mui-checked': {
-                      color: '#fe2c55',
-                    },
-                  }}
-                />
-              }
-              label="Bên ngoài hiệu chuẩn"
-              sx={{ mb: 1 }}
-            />
-            <TextField
-              label="Ngày HC kỳ trước"
-              name="lastCalibrationDate"
-              type="date"
-              value={formData.lastCalibrationDate}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              InputLabelProps={{ shrink: true }}
-              // required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-            <TextField
-              label="Tần suất hiệu chuẩn (tháng)"
-              name="calibrationFrequency"
-              type="number"
-              value={formData.calibrationFrequency}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-            <TextField
-              label="Căn cứ hiệu chuẩn"
-              name="calibrationStandard"
-              value={formData.calibrationStandard}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                  backgroundColor: '#f5f5f5',
-                  '&:hover fieldset': {
-                    borderColor: '#25c2a0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#fe2c55',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#666',
-                  '&.Mui-focused': {
-                    color: '#fe2c55',
-                  },
-                },
-              }}
-            />
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
-                padding: '12px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                borderRadius: '10px',
-                mt: 3,
-                textTransform: 'none',
-                boxShadow: '0 4px 15px rgba(254, 44, 85, 0.4)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #e0294b, #20a88a)',
-                  boxShadow: '0 6px 20px rgba(254, 44, 85, 0.6)',
-                },
-              }}
-            >
-              Thêm Thiết Bị
-            </Button>
-          </form>
-        </Paper>
-      </Container>
-    );
+      enqueueSnackbar('Không thể thêm thiết bị. Vui lòng thử lại sau.', { variant: 'error' });
+    }
   };
 
-  export default AddDevice;
+  return (
+    <Container
+      maxWidth={false}
+      sx={{
+        height: 'auto',
+        paddingTop: '2rem',
+        paddingBottom: '2rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        // background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          padding: '2.5rem',
+          width: '100%',
+          maxWidth: '500px',
+          borderRadius: '12px',
+          backgroundColor: '#fff',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{
+            color: '#fe2c55',
+            fontWeight: 'bold',
+            mb: 3,
+            fontFamily: 'Arial, sans-serif',
+          }}
+        >
+          Thêm Thiết Bị Đo Lường
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
+            {success}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {fields.map(item => (
+            <Controller
+              key={item.name}
+              name={item.name}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={item.label}
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  type={item.type || 'text'}
+                  InputLabelProps={item.InputLabelProps}
+                  sx={textFieldStyle}
+                  error={!!errors[item.name]}
+                  helperText={errors[item.name]?.message}
+                  required={!!item.required}
+                />
+              )}
+            />
+          ))}
+
+          <FormLabel component="legend" sx={{ mt: 2 }}>Chọn loại hiệu chuẩn</FormLabel>
+          <Controller
+            name="calibrationType"
+            control={control}
+            render={({ field }) => (
+              <RadioGroup
+                row
+                {...field}
+                value={field.value || 'self'}
+                onChange={(e) => field.onChange(e.target.value)}
+              >
+                <FormControlLabel
+                  value="self"
+                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }} />}
+                  label="Tự hiệu chuẩn"
+                />
+                <FormControlLabel
+                  value="external"
+                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }} />}
+                  label="Bên ngoài hiệu chuẩn"
+                />
+              </RadioGroup>
+            )}
+          />
+          {errors.calibrationType && (
+            <Typography color="error" sx={{ mt: 1, fontSize: '0.75rem' }}>
+              {errors.calibrationType.message}
+            </Typography>
+          )}
+
+          <FormLabel component="legend" sx={{ mt: 2 }}>Sử dụng bởi</FormLabel>
+          <Controller
+            name="usedBy"
+            control={control}
+            render={({ field }) => (
+              <>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={field.value.includes('field')}
+                      onChange={(e) => {
+                        const newUsedBy = e.target.checked
+                          ? [...field.value, 'field']
+                          : field.value.filter(item => item !== 'field');
+                        field.onChange(newUsedBy);
+                      }}
+                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }}
+                    />
+                  }
+                  label="Hiện trường"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={field.value.includes('office')}
+                      onChange={(e) => {
+                        const newUsedBy = e.target.checked
+                          ? [...field.value, 'office']
+                          : field.value.filter(item => item !== 'office');
+                        field.onChange(newUsedBy);
+                      }}
+                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }}
+                    />
+                  }
+                  label="Văn phòng"
+                />
+              </>
+            )}
+          />
+          {errors.usedBy && (
+            <Typography color="error" sx={{ mt: 1, fontSize: '0.75rem' }}>
+              {errors.usedBy.message}
+            </Typography>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isSubmitting}
+            sx={{
+              background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
+              padding: '12px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              borderRadius: '10px',
+              mt: 3,
+              textTransform: 'none',
+              boxShadow: '0 4px 15px rgba(254, 44, 85, 0.4)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #e0294b, #20a88a)',
+                boxShadow: '0 6px 20px rgba(254, 44, 85, 0.6)',
+              },
+            }}
+          >
+            Thêm Thiết Bị
+          </Button>
+        </form>
+      </Paper>
+    </Container>
+  );
+};
+
+export default React.memo(AddDevice);

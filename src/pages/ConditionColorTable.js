@@ -43,7 +43,7 @@ const colorData = [
 
 const styles = {
   container: {
-    background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+    background: 'linear-gradient(135deg, #f5f7fa 60%, #e3eafc 100%)',
     minHeight: '100vh',
     padding: '2rem',
     display: 'flex',

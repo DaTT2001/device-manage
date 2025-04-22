@@ -59,7 +59,7 @@ const Calibration = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+        // background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
       }}
     >
       <Paper

@@ -59,7 +59,7 @@ const EditDeviceContainer = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+        background: 'linear-gradient(135deg, #f8fafc 70%, #e3eafc 100%)',
       }}
     >
       <Paper

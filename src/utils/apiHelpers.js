@@ -9,9 +9,7 @@ export const deleteDevice = async (id) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa thiết bị này?");
     if (!confirmDelete) return false;
 
-    try {
-        console.log("Đang xóa thiết bị:", id);
-        
+    try {        
         // Gọi API để xóa
         await axios.delete(`http://192.168.10.87:1337/api/devices/${id}`);
         console.log("Thiết bị đã được xóa thành công!");
@@ -22,3 +20,11 @@ export const deleteDevice = async (id) => {
         return false;
     }
 };
+export const addDeviceApi = async (deviceData) => {
+    return axios.post(
+      'http://192.168.10.87:1337/api/devices',
+      {
+        data: deviceData,
+      }
+    );
+  };

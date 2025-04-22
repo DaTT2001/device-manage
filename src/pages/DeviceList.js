@@ -35,6 +35,7 @@ const DeviceList = () => {
     const [open, setOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const [filterResult, setFilterResult] = useState('all');
 
     const pageSize = 25;
 
@@ -55,22 +56,24 @@ const DeviceList = () => {
     useEffect(() => {
         // Xử lý filter và search phía client
         let filteredDevices = allDevices;
-
         // Filter theo search
         if (search) {
             filteredDevices = filteredDevices.filter(device =>
                 device.code?.toLowerCase().includes(search.toLowerCase())
             );
         }
-
         // Filter theo ngày đến hạn
         if (filterDays !== 'all') {
             filteredDevices = filteredDevices.filter(device => {
                 const daysToDue = calculateDaysToDue(device.lastCalibrationDate, device.calibrationFrequency);
-                return daysToDue <= parseInt(filterDays) && daysToDue >= 0;
+                // return daysToDue <= parseInt(filterDays) && daysToDue >= 0;
+                return daysToDue <= parseInt(filterDays)
             });
         }
-
+        // Filter theo trạng thái OK/NG
+        if (filterResult !== 'all') {
+            filteredDevices = filteredDevices.filter(device => device.result === filterResult);
+        }
         // Cập nhật phân trang
         const newTotalPages = Math.ceil(filteredDevices.length / pageSize);
         setTotalPages(newTotalPages);
@@ -83,7 +86,7 @@ const DeviceList = () => {
         if (page > newTotalPages && newTotalPages > 0) {
             setPage(newTotalPages);
         }
-    }, [allDevices, search, filterDays, page]);
+    }, [allDevices, search, filterDays, page, filterResult]);
 
     const handleEdit = (id) => {
         console.log('Edit device:', id);
@@ -140,7 +143,7 @@ const DeviceList = () => {
     };
 
     return (
-        <Box sx={{ background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)', minHeight: '100vh', padding: '2rem' }}>
+        <Box sx={{ background: 'linear-gradient(135deg, #f5f7fa 60%, #e3eafc 100%)', minHeight: '100vh', padding: '2rem' }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, gap: 2 }}>
                 <TextField
                     label="Tìm kiếm thiết bị (theo mã số)"
@@ -204,6 +207,39 @@ const DeviceList = () => {
                         <MenuItem value="7">Dưới 7 ngày</MenuItem>
                     </Select>
                 </FormControl>
+                <FormControl sx={{
+                    width: '200px',
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '10px',
+                        backgroundColor: '#f5f5f5',
+                        '&:hover fieldset': {
+                            borderColor: '#25c2a0',
+                        },
+                        '&.Mui-focused fieldset': {
+                            borderColor: '#fe2c55',
+                        },
+                    },
+                    '& .MuiInputLabel-root': {
+                        color: '#666',
+                        '&.Mui-focused': {
+                            color: '#fe2c55',
+                        },
+                    },
+                }}>
+                    <InputLabel>Lọc trạng thái</InputLabel>
+                    <Select
+                        value={filterResult}
+                        label="Lọc trạng thái"
+                        onChange={(e) => {
+                            setFilterResult(e.target.value);
+                            setPage(1);
+                        }}
+                    >
+                        <MenuItem value="all">Tất cả</MenuItem>
+                        <MenuItem value="OK">Thiết bị OK</MenuItem>
+                        <MenuItem value="NG">Thiết bị NG</MenuItem>
+                    </Select>
+                </FormControl>
             </Box>
             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>{error}</Alert>}
 
@@ -245,7 +281,7 @@ const DeviceList = () => {
                     onChange={(e, value) => setPage(value)}
                     sx={{
                         '& .MuiPaginationItem-root': {
-                            color: '#fff',
+                            // color: '#fff',
                             '&:hover': {
                                 backgroundColor: '#fe2c55',
                             },

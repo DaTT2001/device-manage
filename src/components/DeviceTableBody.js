@@ -4,6 +4,8 @@ import { TableBody, TableRow, TableCell, Box, IconButton } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import Edit from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
+import { Link } from 'react-router-dom';
+import Visibility from '@mui/icons-material/Visibility';
 // Thêm các hàm tiện ích bạn đang sử dụng
 
 const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleDelete, getDaysDifference, isNearDue }) => {
@@ -40,7 +42,7 @@ const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleD
                             <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
                             <TableCell>{device.name || 'N/A'}</TableCell>
                             <TableCell>{device.code || 'N/A'}</TableCell>
-                            <TableCell>{device.brand || 'N/A'}</TableCell>
+                            <TableCell>{device.type || 'N/A'}</TableCell>
                             <TableCell>
                                 {device.selfCalibration ? <CheckIcon sx={{ color: '#25c2a0' }} /> : null}
                             </TableCell>
@@ -69,6 +71,14 @@ const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleD
                                     </IconButton>
                                     <IconButton onClick={() => handleDelete(device.documentId)} sx={{ color: '#fe2c55' }}>
                                         <Delete />
+                                    </IconButton>
+                                    <IconButton
+                                        component={Link}
+                                        to={`/device-detail/${device.documentId}`}
+                                        sx={{ color: '#1976d2' }}
+                                        title="Xem chi tiết"
+                                    >
+                                        <Visibility />
                                     </IconButton>
                                 </Box>
                             </TableCell>
