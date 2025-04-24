@@ -1,11 +1,11 @@
 // DeviceTableBody.js
 import React from 'react';
-import { TableBody, TableRow, TableCell, Box, IconButton } from '@mui/material';
+import { TableBody, TableRow, TableCell, Box, IconButton, Link } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import Edit from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
-import { Link } from 'react-router-dom';
 import Visibility from '@mui/icons-material/Visibility';
+import { Link as RouterLink } from 'react-router-dom';
 // Thêm các hàm tiện ích bạn đang sử dụng
 
 const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleDelete, getDaysDifference, isNearDue }) => {
@@ -40,7 +40,22 @@ const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleD
                             }}
                         >
                             <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-                            <TableCell>{device.name || 'N/A'}</TableCell>
+                            <TableCell>
+                                <Link
+                                    component={RouterLink}
+                                    to={`/device-detail/${device.documentId}`}
+                                    underline="none"
+                                    sx={{
+                                        color: "#222",
+                                        transition: "color 0.2s",
+                                        cursor: "pointer",
+                                        "&:hover": { color: "#1976d2" },
+
+                                    }}
+                                >
+                                    {device.name || 'N/A'}
+                                </Link>
+                            </TableCell>
                             <TableCell>{device.code || 'N/A'}</TableCell>
                             <TableCell>{device.type || 'N/A'}</TableCell>
                             <TableCell>
@@ -73,7 +88,7 @@ const DeviceTableBody = ({ devices, loading, page, pageSize, handleEdit, handleD
                                         <Delete />
                                     </IconButton>
                                     <IconButton
-                                        component={Link}
+                                        component={RouterLink}
                                         to={`/device-detail/${device.documentId}`}
                                         sx={{ color: '#1976d2' }}
                                         title="Xem chi tiết"

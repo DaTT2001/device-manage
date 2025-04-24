@@ -9,6 +9,9 @@ import {
 
 import NotoSans from "../assets/fonts/NotoSans-Regular.ttf";
 import NotoSansSC from "../assets/fonts/NotoSansSC-Regular.ttf";
+import { initialValues } from "../utils/constants";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 // Đăng ký font
 Font.register({ family: "NotoSans", src: NotoSans });
@@ -118,8 +121,102 @@ const deviceInfoRowsCN = [
   ["合格標準", "用途"],
   ["檢查週期", "檢查項目"],
 ];
+const deviceInfoKeys = [
+  ["code", "name", "brand"], // null nếu là logo công ty hoặc không có dữ liệu
+  ["type", "buyDate", "cost"],
+  ["brand", "supplier"],
+  ["usedBy", "phoneNumber"],
+  ["attached", "calibrationStandard"],
+  ["selfCalibration", "externalCalibration"],
+  ["calibrationFrequency", "lastCalibrationDate"],
+];
+const deviceInfoKeysBlock2 = [
+  "brand", "supplier",
+  "department", "phoneNumber",
+  "", "attached",
+  "calibrationStandard", "usedBy",
+  "calibrationFrequency", ""
+];
+const DeviceManagementCard = ({ code }) => {
+  const [device, setDevice] = useState(initialValues);
+  const [history, setHistory] = useState([]);
+  const [emptyRows, setEmptyRows] = useState(0);
 
-const DeviceManagementCard = () => {
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const fetchData = async () => {
+      try {
+        // Lấy dữ liệu thiết bị
+        const deviceResponse = await axios.get(
+          `http://192.168.10.87:1337/api/devices/${code}`,
+          { signal: abortController.signal }
+        );
+        const deviceData = deviceResponse.data.data || {};
+        setDevice({
+          name: deviceData.name || '',
+          code: deviceData.code || '',
+          brand: deviceData.brand || '',
+          type: deviceData.type || '',
+          calibrationFrequency: deviceData.calibrationFrequency?.toString() || '',
+          selfCalibration: deviceData.selfCalibration || false,
+          externalCalibration: deviceData.externalCalibration || false,
+          usedBy: deviceData.usedBy || [],
+          phoneNumber: deviceData.phoneNumber || '',
+          attached: deviceData.attached || '',
+          supplier: deviceData.supplier || '',
+          cost: deviceData.cost?.toString() || '',
+          buyDate: deviceData.buyDate || '',
+          lastCalibrationDate: deviceData.lastCalibrationDate || '',
+          calibrationStandard: deviceData.calibrationStandard || '',
+        });
+
+        // Lấy lịch sử hiệu chuẩn
+        const historyResponse = await axios.get(
+          `http://192.168.10.87:1337/api/calibration-records?filters[deviceId][$eq]=${code}`,
+          { signal: abortController.signal }
+        );
+        const records = Array.isArray(historyResponse.data.data) ? historyResponse.data.data : [];
+
+        setHistory(
+          records.map((item, index) => ({
+            id: item.id || `temp-id-${index}`,
+            calibrationDate: typeof item.calibrationDate === 'string' ? item.calibrationDate : '',
+            calibrationDetail: typeof item.calibrationDetail === 'string' ? item.calibrationDetail : '',
+            result: typeof item.result === 'string' ? item.result : '',
+            scribe: typeof item.scribe === 'string' ? item.scribe : '',
+          }))
+        );
+        setEmptyRows(10 - records.length);
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log('Request aborted');
+        } else {
+          console.error('Error fetching data:', err);
+          setDevice(initialValues);
+          setHistory([]);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [code]);
+  function renderUsedBy(value) {
+    if (!value || value.length === 0) return "";
+    if (Array.isArray(value)) {
+      const labels = [];
+      if (value.includes("field")) labels.push("Hiện trường");
+      if (value.includes("office")) labels.push("Văn phòng");
+      return labels.join(", ");
+    }
+    if (value === "field") return "Hiện trường";
+    if (value === "office") return "Văn phòng";
+    return value;
+  }
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -141,7 +238,14 @@ const DeviceManagementCard = () => {
           <View style={styles.row} key={`block1-row-${rowIndex}`}>
             {row.map((textVi, colIndex) => {
               const textCn = deviceInfoRowsCN[rowIndex]?.[colIndex] || "";
-              const isFirstRow = rowIndex === 0;
+              const key = deviceInfoKeys[rowIndex]?.[colIndex];
+              let value = key ? device[key] : "";
+
+              if (Array.isArray(value)) value = value.join(", ");
+              if (typeof value === "boolean") value = value ? "Có" : "Không";
+              if (key === "cost" && value) value = Number(value).toLocaleString("vi-VN");
+              if ((key === "buyDate" || key === "lastCalibrationDate") && value)
+                value = new Date(value).toLocaleDateString("vi-VN");
 
               return (
                 <View
@@ -152,11 +256,12 @@ const DeviceManagementCard = () => {
                       flexGrow: 1,
                       flexDirection: "row",
                       padding: 0,
-                      borderTop: isFirstRow ? 1 : 0,
+                      borderTop: rowIndex === 0 ? 1 : 0,
                       borderLeft: colIndex === 0 ? 1 : 0,
                     },
                   ]}
                 >
+                  {/* Label */}
                   <View
                     style={{
                       flex: 1,
@@ -171,7 +276,10 @@ const DeviceManagementCard = () => {
                       {textCn}
                     </Text>
                   </View>
-                  <View style={{ flex: 1 }} />
+                  {/* Value */}
+                  <View style={{ flex: 1, justifyContent: "center", padding: 4 }}>
+                    <Text style={{ fontWeight: "bold", fontFamily: "NotoSansSC" }}>{value || ""}</Text>
+                  </View>
                 </View>
               );
             })}
@@ -184,9 +292,19 @@ const DeviceManagementCard = () => {
             {[0, 1].map((colPairIndex) => {
               const labelIndex = rowIndex * 2 + colPairIndex;
               const textVi = deviceInfoRows.slice(2).flat()[labelIndex] || "";
-              const textCn =
-                deviceInfoRowsCN.slice(2).flat()[labelIndex] || "";
+              const textCn = deviceInfoRowsCN.slice(2).flat()[labelIndex] || "";
               const isFirstCol = colPairIndex === 0;
+              const key = deviceInfoKeysBlock2[labelIndex];
+              let value = key ? device[key] : "";
+
+              // Hiển thị mảng dưới dạng chuỗi
+              if (key === "usedBy") value = renderUsedBy(value);
+              else if (Array.isArray(value)) value = value.join(", ");
+              // Hiển thị boolean
+              if (typeof value === "boolean") value = value ? "Có" : "Không";
+              // Hiển thị ngày
+              if (key === "lastCalibrationDate" && value)
+                value = new Date(value).toLocaleDateString("vi-VN");
 
               return (
                 <View
@@ -216,15 +334,16 @@ const DeviceManagementCard = () => {
                       {textCn}
                     </Text>
                   </View>
-                  <View style={{ flex: 1 }} />
+                  <View style={{ flex: 1, justifyContent: "center", padding: 4 }}>
+                    <Text style={{ fontWeight: "bold", fontFamily: "NotoSansSC" }}>{value || ""}</Text>
+                  </View>
                 </View>
               );
             })}
           </View>
         ))}
-
         {/* Tiêu đề ghi chép lý lịch */}
-        <View style={{ marginVertical: 6 }}>
+        <View style={{ marginVertical: 1 }}>
           <Text style={styles.boldCenterText}>Ghi chép lý lịch</Text>
           <Text
             style={[styles.boldCenterText, { fontFamily: "NotoSansSC", fontSize: 10 }]}
@@ -260,8 +379,36 @@ const DeviceManagementCard = () => {
           </View>
 
           {/* Body */}
-          {[...Array(10)].map((_, i) => (
-            <View style={styles.historyRow} key={i}>
+          {/* Body: render dữ liệu thực tế */}
+          {/* Body: Render toàn bộ dữ liệu trong history */}
+          {Array.isArray(history) && history.map((item, index) => {
+            const date = item.calibrationDate && !isNaN(new Date(item.calibrationDate).getTime())
+              ? new Date(item.calibrationDate).toLocaleDateString("vi-VN")
+              : "";
+            const detail = typeof item.calibrationDetail === 'string' ? item.calibrationDetail : '';
+            const result = typeof item.result === 'string' ? item.result : '';
+            const scribe = typeof item.scribe === 'string' ? item.scribe : '';
+
+            return (
+              <View style={styles.historyRow} key={item.id}>
+                <View style={[styles.historyCell, { flex: 1 }]}>
+                  <Text style={{ fontFamily: "NotoSans" }}>{date}</Text>
+                </View>
+                <View style={[styles.historyCell, { flex: 3 }]}>
+                  <Text style={{ fontFamily: "NotoSans" }}>{detail}</Text>
+                </View>
+                <View style={[styles.historyCell, { flex: 1 }]}>
+                  <Text style={{ fontFamily: "NotoSans" }}>{result}</Text>
+                </View>
+                <View style={[styles.lastHistoryCell, { flex: 1 }]}>
+                  <Text style={{ fontFamily: "NotoSans" }}>{scribe}</Text>
+                </View>
+              </View>
+            );
+          })}
+          {/* Body: render dòng trống nếu chưa đủ 10 dòng */}
+          {emptyRows > 0 && Array.from({ length: emptyRows }).map((_, index) => (
+            <View style={styles.historyRow} key={`empty-${index}`}>
               <View style={[styles.historyCell, { flex: 1 }]} />
               <View style={[styles.historyCell, { flex: 3 }]} />
               <View style={[styles.historyCell, { flex: 1 }]} />

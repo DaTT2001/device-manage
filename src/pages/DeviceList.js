@@ -56,37 +56,36 @@ const DeviceList = () => {
     useEffect(() => {
         // Xử lý filter và search phía client
         let filteredDevices = allDevices;
-        // Filter theo search
         if (search) {
             filteredDevices = filteredDevices.filter(device =>
                 device.code?.toLowerCase().includes(search.toLowerCase())
             );
         }
-        // Filter theo ngày đến hạn
         if (filterDays !== 'all') {
             filteredDevices = filteredDevices.filter(device => {
                 const daysToDue = calculateDaysToDue(device.lastCalibrationDate, device.calibrationFrequency);
-                // return daysToDue <= parseInt(filterDays) && daysToDue >= 0;
-                return daysToDue <= parseInt(filterDays)
+                return daysToDue <= parseInt(filterDays);
             });
         }
-        // Filter theo trạng thái OK/NG
         if (filterResult !== 'all') {
             filteredDevices = filteredDevices.filter(device => device.result === filterResult);
         }
-        // Cập nhật phân trang
-        const newTotalPages = Math.ceil(filteredDevices.length / pageSize);
+        const newTotalPages = Math.ceil(filteredDevices.length / pageSize) || 1;
         setTotalPages(newTotalPages);
-
+    
         const startIndex = (page - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         setDisplayedDevices(filteredDevices.slice(startIndex, endIndex));
-
-        // Điều chỉnh page nếu vượt quá totalPages
-        if (page > newTotalPages && newTotalPages > 0) {
-            setPage(newTotalPages);
-        }
+        // Không setPage ở đây!
     }, [allDevices, search, filterDays, page, filterResult]);
+    
+    // Tách phần điều chỉnh page ra effect riêng
+    useEffect(() => {
+        if (page > totalPages && totalPages > 0) {
+            setPage(totalPages);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [totalPages]);
 
     const handleEdit = (id) => {
         console.log('Edit device:', id);

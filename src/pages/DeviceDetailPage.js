@@ -21,7 +21,6 @@ import Inventory2Icon from '@mui/icons-material/Inventory2';
 import axios from 'axios';
 import AddHistoryDialog from '../components/AddHistoryDialog';
 import { enqueueSnackbar } from 'notistack';
-import { set } from 'lodash';
 import HistoryItem from '../components/HistoryItem';
 
 const getDaysDifference = (date1, date2) => {
@@ -295,7 +294,7 @@ const DeviceDetailPage = () => {
                                 variant="contained"
                                 color="primary"
                                 startIcon={<PictureAsPdfIcon />}
-                                onClick={() => navigate(`/calibration-pdf/${device.documentId}`)}
+                                onClick={() => navigate(`/calibration/${device.documentId}`)}
                                 sx={{ fontWeight: 600, minWidth: 140 }}
                             >
                                 Xuất PDF

@@ -45,7 +45,7 @@ const Calibration = () => {
     } else {
         console.log("Thiết bị tìm thấy:", deviceExists[0]);
         enqueueSnackbar(`Tìm thấy thiết bị mã số: ${deviceExists[0].code}`, { variant: 'success' });
-        navigate(`/calibration/${deviceExists[0].documentId}`);
+        navigate(`/device-detail/${deviceExists[0].documentId}`);
     }
 
     setLoading(false); // Tắt loading sau khi xử lý xong
