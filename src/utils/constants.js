@@ -38,13 +38,13 @@ export const textFieldStyle = {
       borderColor: '#25c2a0',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#fe2c55',
+      borderColor: '#457b9d',
     },
   },
   '& .MuiInputLabel-root': {
     color: '#666',
     '&.Mui-focused': {
-      color: '#fe2c55',
+      color: '#457b9d',
     },
   },
 };

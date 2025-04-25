@@ -294,7 +294,7 @@ const DeviceDetailPage = () => {
                                 variant="contained"
                                 color="primary"
                                 startIcon={<PictureAsPdfIcon />}
-                                onClick={() => navigate(`/calibration/${device.documentId}`)}
+                                onClick={() => navigate(`/device-detail/export/${device.documentId}`)}
                                 sx={{ fontWeight: 600, minWidth: 140 }}
                             >
                                 Xuất PDF

@@ -42,6 +42,7 @@ const AppContent = () => {
   const navigate = useNavigate();
   const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/forgot-password';
   const location = useLocation();
+  const isPDFPage = location.pathname.startsWith('/device-detail/export');
 
   useEffect(() => {
     if (!loading && token && user && isLoginPage) {
@@ -69,7 +70,7 @@ const AppContent = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Header chỉ hiện khi không phải trang đăng nhập */}
-      {!isLoginPage && <Header />}
+      {!isLoginPage && !isPDFPage && <Header />}
 
       {/* Nội dung chính */}
       <Box sx={{ flexGrow: 1 }}>
@@ -109,16 +110,16 @@ const AppContent = () => {
             }
           />
           <Route path="/edit-device/:documentId" element={<EditDevice />} />
-          <Route path="/calibration" element={<Calibration />} />
+          <Route path="/device-detail" element={<Calibration />} />
           <Route path="/edit-device" element={<EditDeviceContainer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="calibration/:documentId" element={<CalibrationPDFPage />} />
+          <Route path="/device-detail/export/:documentId" element={<CalibrationPDFPage />} />
           <Route path="/device-detail/:documentId" element={<DeviceDetailPage />} />
         </Routes>
       </Box>
 
       {/* Footer chỉ hiện khi không phải trang đăng nhập */}
-      {!isLoginPage && <Footer />}
+      {!isLoginPage && !isPDFPage && <Footer />}
     </Box>
   );
 };

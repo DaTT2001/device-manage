@@ -51,7 +51,7 @@ const styles = {
     alignItems: 'center',
   },
   title: {
-    color: '#fe2c55',
+    color: '#1d3557',
     fontWeight: 'bold',
     mb: 3,
     textAlign: 'center',
@@ -62,7 +62,7 @@ const styles = {
     maxWidth: '1400px',
   },
   tableHeader: {
-    background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
+    background: 'linear-gradient(135deg, #1d3557, #457b9d)',
   },
   headerCell: {
     color: '#fff',

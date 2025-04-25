@@ -25,7 +25,7 @@ const Footer = () => {
             mx: 1,
             '&:hover': {
               color: '#fe2c55', // Hồng neon khi hover
-              textDecoration: 'underline',
+              textDecoration: 'none',
             },
           }}
         >
@@ -39,7 +39,7 @@ const Footer = () => {
             mx: 1,
             '&:hover': {
               color: '#fe2c55',
-              textDecoration: 'underline',
+              textDecoration: 'none',
             },
           }}
         >
@@ -53,7 +53,7 @@ const Footer = () => {
             mx: 1,
             '&:hover': {
               color: '#fe2c55',
-              textDecoration: 'underline',
+              textDecoration: 'none',
             },
           }}
         >

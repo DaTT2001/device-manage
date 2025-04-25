@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Box, Typography, Paper, List, ListItem, ListItemText, Chip, Grid, Button } from '@mui/material'
+import { Box, Typography, Paper, List, ListItem, ListItemText, Chip, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material'
 import { enqueueSnackbar } from 'notistack'
 
 const WasteReport = () => {
   const [notReported, setNotReported] = useState([])
   const [reported, setReported] = useState([])
   const [loadingId, setLoadingId] = useState(null)
+  const [openDialog, setOpenDialog] = useState(false)
+  const [selectedDevice, setSelectedDevice] = useState(null)
 
   const fetchDevices = async () => {
     try {
@@ -26,20 +28,30 @@ const WasteReport = () => {
     fetchDevices()
   }, [])
 
-  const handleReportWaste = async (deviceId) => {
-    if (!window.confirm('Bạn chắc chắn muốn báo phế thiết bị này?')) return;
-    setLoadingId(deviceId)
+  const handleOpenDialog = (device) => {
+    setSelectedDevice(device)
+    setOpenDialog(true)
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+    setSelectedDevice(null)
+  }
+
+  const handleReportWaste = async () => {
+    if (!selectedDevice) return;
+    setLoadingId(selectedDevice.documentId)
     try {
-      await axios.put(`http://192.168.10.87:1337/api/devices/${deviceId}`, {
+      await axios.put(`http://192.168.10.87:1337/api/devices/${selectedDevice.documentId}`, {
         data: { wasteStatus: 'yes' }
       })
       await fetchDevices()
       enqueueSnackbar('Báo phế thành công!', { variant: 'success' })
     } catch (error) {
-      alert('Báo phế thất bại!')
       enqueueSnackbar('Báo phế thất bại!', { variant: 'error' })
     }
     setLoadingId(null)
+    handleCloseDialog()
   }
 
   return (
@@ -69,7 +81,7 @@ const WasteReport = () => {
                         color="warning"
                         size="small"
                         disabled={loadingId === device.documentId}
-                        onClick={() => handleReportWaste(device.documentId)}
+                        onClick={() => handleOpenDialog(device)}
                         sx={{ ml: 2, minWidth: 90 }}
                       >
                         {loadingId === device.documentId ? 'Đang báo...' : 'Báo phế'}
@@ -106,6 +118,36 @@ const WasteReport = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Dialog xác nhận báo phế */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Xác nhận báo phế</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc chắn muốn báo phế thiết bị này không? Hành động này không thể hoàn tác!
+          </DialogContentText>
+          {selectedDevice && (
+            <DialogContentText sx={{ mt: 2 }}>
+              <strong>Tên:</strong> {selectedDevice.name} <br />
+              <strong>Mã:</strong> {selectedDevice.code} <br />
+              <strong>Hãng:</strong> {selectedDevice.brand || 'N/A'}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Hủy
+          </Button>
+          <Button
+            onClick={handleReportWaste}
+            color="error"
+            autoFocus
+            disabled={loadingId === (selectedDevice && selectedDevice.documentId)}
+          >
+            {loadingId === (selectedDevice && selectedDevice.documentId) ? 'Đang báo...' : 'Xác nhận báo phế'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

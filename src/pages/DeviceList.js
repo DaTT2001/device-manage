@@ -22,7 +22,6 @@ import { useNavigate } from 'react-router-dom';
 import { useDevices } from '../context/DeviceContext';
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
-// import { Navigate } from 'react-router-dom';
 
 const DeviceList = () => {
     const navigate = useNavigate();
@@ -72,13 +71,13 @@ const DeviceList = () => {
         }
         const newTotalPages = Math.ceil(filteredDevices.length / pageSize) || 1;
         setTotalPages(newTotalPages);
-    
+
         const startIndex = (page - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         setDisplayedDevices(filteredDevices.slice(startIndex, endIndex));
         // Không setPage ở đây!
     }, [allDevices, search, filterDays, page, filterResult]);
-    
+
     // Tách phần điều chỉnh page ra effect riêng
     useEffect(() => {
         if (page > totalPages && totalPages > 0) {
@@ -143,109 +142,154 @@ const DeviceList = () => {
 
     return (
         <Box sx={{ background: 'linear-gradient(135deg, #f5f7fa 60%, #e3eafc 100%)', minHeight: '100vh', padding: '2rem' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, gap: 2 }}>
-                <TextField
-                    label="Tìm kiếm thiết bị (theo mã số)"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
-                    variant="outlined"
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 3,
+                    gap: 2,
+                }}
+            >
+                <Box
                     sx={{
-                        width: '50%',
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            backgroundColor: '#f5f5f5',
-                            '&:hover fieldset': {
-                                borderColor: '#25c2a0',
-                            },
-                            '&.Mui-focused fieldset': {
-                                borderColor: '#fe2c55',
-                            },
-                        },
-                        '& .MuiInputLabel-root': {
-                            color: '#666',
-                            '&.Mui-focused': {
-                                color: '#fe2c55',
-                            },
-                        },
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        background: '#fff',
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        px: 2,
+                        py: 1,
+                        minWidth: 900,
                     }}
-                />
-                <FormControl sx={{
-                    width: '200px',
-                    '& .MuiOutlinedInput-root': {
-                        borderRadius: '10px',
-                        backgroundColor: '#f5f5f5',
-                        '&:hover fieldset': {
-                            borderColor: '#25c2a0',
-                        },
-                        '&.Mui-focused fieldset': {
-                            borderColor: '#fe2c55',
-                        },
-                    },
-                    '& .MuiInputLabel-root': {
-                        color: '#666',
-                        '&.Mui-focused': {
-                            color: '#fe2c55',
-                        },
-                    },
-                }}>
-                    <InputLabel>Lọc theo ngày đến hạn</InputLabel>
-                    <Select
-                        value={filterDays}
-                        label="Lọc theo ngày đến hạn"
+                >
+                    <TextField
+                        label="Tìm kiếm thiết bị (theo mã số)"
+                        value={search}
                         onChange={(e) => {
-                            setFilterDays(e.target.value);
+                            setSearch(e.target.value);
                             setPage(1);
                         }}
-                    >
-                        <MenuItem value="all">Tất cả</MenuItem>
-                        <MenuItem value="30">Dưới 30 ngày</MenuItem>
-                        <MenuItem value="15">Dưới 15 ngày</MenuItem>
-                        <MenuItem value="7">Dưới 7 ngày</MenuItem>
-                    </Select>
-                </FormControl>
-                <FormControl sx={{
-                    width: '200px',
-                    '& .MuiOutlinedInput-root': {
-                        borderRadius: '10px',
-                        backgroundColor: '#f5f5f5',
-                        '&:hover fieldset': {
-                            borderColor: '#25c2a0',
-                        },
-                        '&.Mui-focused fieldset': {
-                            borderColor: '#fe2c55',
-                        },
-                    },
-                    '& .MuiInputLabel-root': {
-                        color: '#666',
-                        '&.Mui-focused': {
-                            color: '#fe2c55',
-                        },
-                    },
-                }}>
-                    <InputLabel>Lọc trạng thái</InputLabel>
-                    <Select
-                        value={filterResult}
-                        label="Lọc trạng thái"
-                        onChange={(e) => {
-                            setFilterResult(e.target.value);
-                            setPage(1);
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                            width: '400px',
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '10px',
+                                backgroundColor: '#f5f5f5',
+                                '&:hover fieldset': {
+                                    borderColor: '#25c2a0',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#1d3557',
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: '#666',
+                                '&.Mui-focused': {
+                                    color: '#1d3557',
+                                },
+                            },
+                        }}
+                    />
+                    <FormControl
+                        size="small"
+                        sx={{
+                            width: '250px',
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '10px',
+                                backgroundColor: '#f5f5f5',
+                                '&:hover fieldset': {
+                                    borderColor: '#25c2a0',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#1d3557',
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: '#666',
+                                '&.Mui-focused': {
+                                    color: '#1d3557',
+                                },
+                            },
                         }}
                     >
-                        <MenuItem value="all">Tất cả</MenuItem>
-                        <MenuItem value="OK">Thiết bị OK</MenuItem>
-                        <MenuItem value="NG">Thiết bị NG</MenuItem>
-                    </Select>
-                </FormControl>
+                        <InputLabel>Lọc ngày đến hạn</InputLabel>
+                        <Select
+                            value={filterDays}
+                            label="Lọc ngày đến hạn"
+                            onChange={(e) => {
+                                setFilterDays(e.target.value);
+                                setPage(1);
+                            }}
+                        >
+                            <MenuItem value="all">Tất cả</MenuItem>
+                            <MenuItem value="30">Dưới 30 ngày</MenuItem>
+                            <MenuItem value="15">Dưới 15 ngày</MenuItem>
+                            <MenuItem value="7">Dưới 7 ngày</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl
+                        size="small"
+                        sx={{
+                            width: '250px',
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '10px',
+                                backgroundColor: '#f5f5f5',
+                                '&:hover fieldset': {
+                                    borderColor: '#25c2a0',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#1d3557',
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: '#666',
+                                '&.Mui-focused': {
+                                    color: '#1d3557',
+                                },
+                            },
+                        }}
+                    >
+                        <InputLabel>Lọc trạng thái</InputLabel>
+                        <Select
+                            value={filterResult}
+                            label="Lọc trạng thái"
+                            onChange={(e) => {
+                                setFilterResult(e.target.value);
+                                setPage(1);
+                            }}
+                        >
+                            <MenuItem value="all">Tất cả</MenuItem>
+                            <MenuItem value="OK">Thiết bị OK</MenuItem>
+                            <MenuItem value="NG">Thiết bị NG</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                        ml: 2,
+                        borderRadius: 2,
+                        height: 40,
+                        fontWeight: 'bold',
+                        boxShadow: 1,
+                        textTransform: 'none',
+                    }}
+                    onClick={() => navigate('/add-device')}
+                >
+                    + Thêm thiết bị
+                </Button>
             </Box>
+
             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>{error}</Alert>}
 
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', borderRadius: '12px' }}>
                 <Table>
                     <TableHead>
-                        <TableRow sx={{ background: 'linear-gradient(45deg, #fe2c55, #25c2a0)' }}>
+                        <TableRow sx={{ background: 'linear-gradient(135deg, #1d3557, #457b9d)' }}>
                             <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>STT</TableCell>
                             <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Tên thiết bị</TableCell>
                             <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Mã số</TableCell>
@@ -282,10 +326,11 @@ const DeviceList = () => {
                         '& .MuiPaginationItem-root': {
                             // color: '#fff',
                             '&:hover': {
-                                backgroundColor: '#fe2c55',
+                                backgroundColor: '#1d3557',
+                                color: "#fff",
                             },
                             '&.Mui-selected': {
-                                backgroundColor: '#25c2a0',
+                                backgroundColor: '#1d3557',
                                 color: '#fff',
                             },
                         },

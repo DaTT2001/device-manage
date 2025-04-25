@@ -77,7 +77,7 @@ const Calibration = () => {
           variant="h4"
           align="center"
           sx={{
-            color: '#fe2c55',
+            color: '#1d3557',
             fontWeight: 'bold',
             mb: 3,
             fontFamily: 'Arial, sans-serif',
@@ -110,13 +110,13 @@ const Calibration = () => {
                   borderColor: '#25c2a0',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#fe2c55',
+                  borderColor: '#1d3557',
                 },
               },
               '& .MuiInputLabel-root': {
                 color: '#666',
                 '&.Mui-focused': {
-                  color: '#fe2c55',
+                  color: '#1d3557',
                 },
               },
             }}
@@ -127,17 +127,18 @@ const Calibration = () => {
             variant="contained"
             fullWidth
             sx={{
-              background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
+              background: 'linear-gradient(135deg, #1d3557, #457b9d)',
               padding: '12px',
               fontSize: '16px',
               fontWeight: 'bold',
               borderRadius: '10px',
               mt: 3,
               textTransform: 'none',
-              boxShadow: '0 4px 15px rgba(254, 44, 85, 0.4)',
+              color: '#fff',
+              boxShadow: '0 4px 15px rgba(69, 123, 157, 0.4)',
               '&:hover': {
-                background: 'linear-gradient(45deg, #e0294b, #20a88a)',
-                boxShadow: '0 6px 20px rgba(254, 44, 85, 0.6)',
+                background: 'linear-gradient(135deg, #457b9d, #1d3557)',
+                boxShadow: '0 6px 20px rgba(69, 123, 157, 0.6)',
               },
             }}
           >

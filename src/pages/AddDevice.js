@@ -129,7 +129,6 @@ const AddDevice = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        // background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
       }}
     >
       <Paper
@@ -147,7 +146,7 @@ const AddDevice = () => {
           variant="h4"
           align="center"
           sx={{
-            color: '#fe2c55',
+            color: '#1d3557',
             fontWeight: 'bold',
             mb: 3,
             fontFamily: 'Arial, sans-serif',
@@ -206,12 +205,12 @@ const AddDevice = () => {
               >
                 <FormControlLabel
                   value="self"
-                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }} />}
+                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#1d3557' } }} />}
                   label="Tự hiệu chuẩn"
                 />
                 <FormControlLabel
                   value="external"
-                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }} />}
+                  control={<Radio sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#1d3557' } }} />}
                   label="Bên ngoài hiệu chuẩn"
                 />
               </RadioGroup>
@@ -239,7 +238,7 @@ const AddDevice = () => {
                           : field.value.filter(item => item !== 'field');
                         field.onChange(newUsedBy);
                       }}
-                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }}
+                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#1d3557' } }}
                     />
                   }
                   label="Hiện trường"
@@ -254,7 +253,7 @@ const AddDevice = () => {
                           : field.value.filter(item => item !== 'office');
                         field.onChange(newUsedBy);
                       }}
-                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#fe2c55' } }}
+                      sx={{ color: '#25c2a0', '&.Mui-checked': { color: '#1d3557' } }}
                     />
                   }
                   label="Văn phòng"
@@ -274,17 +273,18 @@ const AddDevice = () => {
             fullWidth
             disabled={isSubmitting}
             sx={{
-              background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
+              background: 'linear-gradient(135deg, #1d3557, #1d3557)',
               padding: '12px',
               fontSize: '16px',
               fontWeight: 'bold',
               borderRadius: '10px',
               mt: 3,
               textTransform: 'none',
-              boxShadow: '0 4px 15px rgba(254, 44, 85, 0.4)',
+              color: '#fff',
+              boxShadow: '0 4px 15px rgba(69, 123, 157, 0.4)',
               '&:hover': {
-                background: 'linear-gradient(45deg, #e0294b, #20a88a)',
-                boxShadow: '0 6px 20px rgba(254, 44, 85, 0.6)',
+                background: 'linear-gradient(135deg, #1d3557, #1d3557)',
+                boxShadow: '0 6px 20px rgba(69, 123, 157, 0.6)',
               },
             }}
           >
