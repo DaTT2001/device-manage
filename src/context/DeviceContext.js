@@ -21,7 +21,7 @@ export const DeviceProvider = ({ children }) => {
             const pageSize = 100; // Sử dụng pageSize lớn để giảm số lần gọi
 
             while (hasMore) {
-                const url = `http://192.168.10.87:1337/api/devices?pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}`;
+                const url = `http://117.6.40.130:1337/api/devices?pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}`;
                 const response = await axios.get(url);
                 const { data, meta } = response.data;
 

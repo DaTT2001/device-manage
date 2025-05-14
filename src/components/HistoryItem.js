@@ -17,7 +17,7 @@ const HistoryItem = ({ item, idx, onEdit }) => {
     const handleDelete = async () => {
         if (!window.confirm('Bạn có chắc chắn muốn xóa ghi chép này?')) return;
         try {
-            await axios.delete(`http://192.168.10.87:1337/api/calibration-records/${item.documentId}`);
+            await axios.delete(`http://117.6.40.130:1337/api/calibration-records/${item.documentId}`);
             enqueueSnackbar('Xóa ghi chép thành công', { variant: 'success' });
             window.location.reload();
         } catch (error) {

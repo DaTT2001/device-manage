@@ -44,7 +44,7 @@ const validationSchema = Yup.object({
 });
 
 const updateDeviceApi = async (id, deviceData) => {
-  return axios.put(`http://192.168.10.87:1337/api/devices/${id}`, { data: deviceData });
+  return axios.put(`http://117.6.40.130:1337/api/devices/${id}`, { data: deviceData });
 };
 
 const EditDevice = () => {
@@ -78,7 +78,7 @@ const EditDevice = () => {
   useEffect(() => {
     const fetchDevice = async () => {
       try {
-        const response = await axios.get(`http://192.168.10.87:1337/api/devices/${documentId}`);
+        const response = await axios.get(`http://117.6.40.130:1337/api/devices/${documentId}`);
         const device = response.data.data;
         if (device) {
           reset({

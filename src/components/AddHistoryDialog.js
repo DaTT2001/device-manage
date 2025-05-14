@@ -28,7 +28,7 @@ const AddHistoryDialog = ({ open, onClose, onSave, deviceId }) => {
 
         if (result === 'NG' && deviceId) {
             try {
-                await axios.put(`http://192.168.10.87:1337/api/devices/${deviceId}`, {
+                await axios.put(`http://117.6.40.130:1337/api/devices/${deviceId}`, {
                     data: { result: 'NG', wasteStatus: 'no' }
                 });
             } catch (error) {

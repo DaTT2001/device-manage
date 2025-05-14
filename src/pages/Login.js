@@ -88,7 +88,7 @@ const Login = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #000 50%, #1a1a1a 100%)',
+        background: 'linear-gradient(135deg, #f5f7fa 60%, #e3eafc 100%)',
       }}
     >
       <Paper
@@ -97,32 +97,31 @@ const Login = () => {
           padding: '2.5rem',
           width: '100%',
           maxWidth: '400px',
-          borderRadius: '12px',
+          borderRadius: '16px',
           backgroundColor: '#fff',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+          boxShadow: '0 4px 24px rgba(29,53,87,0.10)',
         }}
       >
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <img src={logo} alt="Logo" style={{ width: '70px' }} />
+        </Box>
         <Typography
-          variant="h4"
+          variant="h5"
           align="center"
           sx={{
-            color: '#fe2c55',
+            color: '#1d3557',
             fontWeight: 'bold',
             mb: 3,
             fontFamily: 'Arial, sans-serif',
           }}
         >
-          <Box sx={{ textAlign: 'center', mb: 2 }}>
-            <img src={logo} alt="Logo" style={{ width: '70px' }} /> Đăng Nhập
-          </Box>
+          Đăng Nhập
         </Typography>
-
         {error && (
           <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
             {error}
           </Alert>
         )}
-
         <form onSubmit={handleSubmit}>
           <TextField
             label="Email hoặc tên người dùng"
@@ -142,13 +141,13 @@ const Login = () => {
                   borderColor: '#25c2a0',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#fe2c55',
+                  borderColor: '#1d3557',
                 },
               },
               '& .MuiInputLabel-root': {
                 color: '#666',
                 '&.Mui-focused': {
-                  color: '#fe2c55',
+                  color: '#1d3557',
                 },
               },
             }}
@@ -161,6 +160,8 @@ const Login = () => {
             fullWidth
             margin="normal"
             variant="outlined"
+            error={!!formErrors.password}
+            helperText={formErrors.password}
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '10px',
@@ -169,50 +170,44 @@ const Login = () => {
                   borderColor: '#25c2a0',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#fe2c55',
+                  borderColor: '#1d3557',
                 },
               },
               '& .MuiInputLabel-root': {
                 color: '#666',
                 '&.Mui-focused': {
-                  color: '#fe2c55',
+                  color: '#1d3557',
                 },
               },
             }}
           />
-
           <Button
             type="submit"
             variant="contained"
             fullWidth
             sx={{
-              background: 'linear-gradient(45deg, #fe2c55, #25c2a0)',
+              background: 'linear-gradient(45deg, #1d3557, #25c2a0)',
               padding: '12px',
               fontSize: '16px',
               fontWeight: 'bold',
               borderRadius: '10px',
               mt: 3,
               textTransform: 'none',
-              boxShadow: '0 4px 15px rgba(254, 44, 85, 0.4)',
+              boxShadow: '0 4px 15px rgba(29,53,87,0.10)',
               '&:hover': {
-                background: 'linear-gradient(45deg, #e0294b, #20a88a)',
-                boxShadow: '0 6px 20px rgba(254, 44, 85, 0.6)',
+                background: 'linear-gradient(45deg, #457b9d, #20a88a)',
               },
             }}
           >
             Đăng Nhập
           </Button>
-
           <Box sx={{ textAlign: 'center', mt: 2 }}>
             <Link
-              to="/forgot-password" // Liên kết đến trang quên mật khẩu
-              sx={{
+              to="/forgot-password"
+              style={{
                 color: '#25c2a0',
                 textDecoration: 'none',
-                '&:hover': {
-                  textDecoration: 'underline',
-                  color: '#fe2c55',
-                },
+                fontWeight: 500,
               }}
             >
               Quên mật khẩu?

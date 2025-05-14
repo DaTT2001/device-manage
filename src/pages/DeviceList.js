@@ -115,7 +115,7 @@ const DeviceList = () => {
             console.log("Đang xóa thiết bị:", selectedId);
 
             // Gọi API xóa thiết bị
-            await axios.delete(`http://192.168.10.87:1337/api/devices/${selectedId}`);
+            await axios.delete(`http://117.6.40.130:1337/api/devices/${selectedId}`);
 
             // Cập nhật danh sách thiết bị
             await fetchAllDevices();

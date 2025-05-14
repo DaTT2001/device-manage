@@ -11,7 +11,7 @@ export const deleteDevice = async (id) => {
 
     try {        
         // Gọi API để xóa
-        await axios.delete(`http://192.168.10.87:1337/api/devices/${id}`);
+        await axios.delete(`http://117.6.40.130:1337/api/devices/${id}`);
         console.log("Thiết bị đã được xóa thành công!");
         return true;
     } catch (error) {
@@ -22,7 +22,7 @@ export const deleteDevice = async (id) => {
 };
 export const addDeviceApi = async (deviceData) => {
     return axios.post(
-      'http://192.168.10.87:1337/api/devices',
+      'http://117.6.40.130:1337/api/devices',
       {
         data: deviceData,
       }

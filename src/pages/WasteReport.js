@@ -13,7 +13,7 @@ const WasteReport = () => {
   const fetchDevices = async () => {
     try {
       const response = await axios.get(
-        'http://192.168.10.87:1337/api/devices?filters[result][$eq]=NG&pagination[pageSize]=9999'
+        'http://117.6.40.130:1337/api/devices?filters[result][$eq]=NG&pagination[pageSize]=9999'
       )
       const allNG = response.data.data || []
       setNotReported(allNG.filter(d => d.wasteStatus === 'no'))
@@ -42,7 +42,7 @@ const WasteReport = () => {
     if (!selectedDevice) return;
     setLoadingId(selectedDevice.documentId)
     try {
-      await axios.put(`http://192.168.10.87:1337/api/devices/${selectedDevice.documentId}`, {
+      await axios.put(`http://117.6.40.130:1337/api/devices/${selectedDevice.documentId}`, {
         data: { wasteStatus: 'yes' }
       })
       await fetchDevices()

@@ -39,7 +39,7 @@ const DeviceDetailPage = () => {
 
     const handleAddHistory = async (item) => {
         try {
-            await axios.post('http://192.168.10.87:1337/api/calibration-records', { data: item });
+            await axios.post('http://117.6.40.130:1337/api/calibration-records', { data: item });
             enqueueSnackbar('Thêm ghi chép thành công', { variant: 'success' });
             setHistory((prevHistory) => [...prevHistory, item]);
         } catch (error) {
@@ -51,7 +51,7 @@ const DeviceDetailPage = () => {
     useEffect(() => {
         const fetchDevice = async () => {
             try {
-                const response = await axios.get(`http://192.168.10.87:1337/api/devices/${documentId}`);
+                const response = await axios.get(`http://117.6.40.130:1337/api/devices/${documentId}`);
                 const device = response.data.data;
                 if (device) setDevice(device);
             } catch (err) {
@@ -64,7 +64,7 @@ const DeviceDetailPage = () => {
     useEffect(() => {
         const fetchDevice = async () => {
             try {
-                const response = await axios.get(`http://192.168.10.87:1337/api/calibration-records?filters[deviceId][$eq]=${documentId}`);
+                const response = await axios.get(`http://117.6.40.130:1337/api/calibration-records?filters[deviceId][$eq]=${documentId}`);
                 const devices = response.data.data;
                 setHistory(devices);
                 console.log("Device data:", devices);

@@ -149,7 +149,7 @@ const DeviceManagementCard = ({ code }) => {
       try {
         // Lấy dữ liệu thiết bị
         const deviceResponse = await axios.get(
-          `http://192.168.10.87:1337/api/devices/${code}`,
+          `http://117.6.40.130:1337/api/devices/${code}`,
           { signal: abortController.signal }
         );
         const deviceData = deviceResponse.data.data || {};
@@ -173,7 +173,7 @@ const DeviceManagementCard = ({ code }) => {
 
         // Lấy lịch sử hiệu chuẩn
         const historyResponse = await axios.get(
-          `http://192.168.10.87:1337/api/calibration-records?filters[deviceId][$eq]=${code}`,
+          `http://117.6.40.130:1337/api/calibration-records?filters[deviceId][$eq]=${code}`,
           { signal: abortController.signal }
         );
         const records = Array.isArray(historyResponse.data.data) ? historyResponse.data.data : [];

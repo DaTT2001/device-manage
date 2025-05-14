@@ -27,7 +27,7 @@ const EditHistoryDialog = ({ open, onClose, item }) => {
         setError('');
         try {
             await axios.put(
-                `http://192.168.10.87:1337/api/calibration-records/${item.documentId}`,
+                `http://117.6.40.130:1337/api/calibration-records/${item.documentId}`,
                 {
                     data: {
                         calibrationDate,

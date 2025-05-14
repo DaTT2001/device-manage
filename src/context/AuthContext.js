@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API_URL = 'http://192.168.10.87:1337/api';
+const API_URL = 'http://117.6.40.130:1337/api';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
