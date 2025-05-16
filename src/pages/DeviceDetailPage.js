@@ -22,6 +22,7 @@ import axios from 'axios';
 import AddHistoryDialog from '../components/AddHistoryDialog';
 import { enqueueSnackbar } from 'notistack';
 import HistoryItem from '../components/HistoryItem';
+import ConfirmCalibration from '../components/ConfirmCalibration';
 
 const getDaysDifference = (date1, date2) => {
     const diffTime = date2.getTime() - date1.getTime();
@@ -35,6 +36,7 @@ const DeviceDetailPage = () => {
     const [dueDate, setDueDate] = useState(null);
     const [daysUntilDue, setDaysUntilDue] = useState(null);
     const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [openConfirm, setOpenConfirm] = useState(false);
     const [history, setHistory] = useState([]);
 
     const handleAddHistory = async (item) => {
@@ -47,7 +49,24 @@ const DeviceDetailPage = () => {
             enqueueSnackbar('Thêm ghi chép thất bại', { variant: 'error' });
         }
     };
-
+    const handleConfirmCalibration = async () => {
+    try {
+        const updatedFields = {
+            lastCalibrationDate: new Date().toISOString().slice(0, 10), // "YYYY-MM-DD"
+        };
+        await axios.put(
+            `http://117.6.40.130:1337/api/devices/${documentId}`,
+            { data: updatedFields }
+        );
+        enqueueSnackbar('Hiệu chuẩn thành công', { variant: 'success' });
+        setDevice(prev => ({ ...prev, ...updatedFields }));
+        setOpenConfirm(false);
+    } catch (error) {
+        console.log('Error confirming calibration:', error);
+        enqueueSnackbar('Hiệu chuẩn thất bại', { variant: 'error' });
+    }
+};
+    
     useEffect(() => {
         const fetchDevice = async () => {
             try {
@@ -74,7 +93,7 @@ const DeviceDetailPage = () => {
             }
         };
         fetchDevice();
-    }, [documentId]);
+    }, [documentId,handleConfirmCalibration]);
 
     useEffect(() => {
         if (!device) return;
@@ -217,6 +236,21 @@ const DeviceDetailPage = () => {
                                     <Typography variant="h6" fontWeight="bold">
                                         Thông tin hiệu chuẩn
                                     </Typography>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        size="small"
+                                        sx={{ ml: 2, fontWeight: 600 }}
+                                        onClick={() => setOpenConfirm(true)}
+                                    >
+                                        Hiệu chuẩn
+                                    </Button>
+                                    <ConfirmCalibration
+                                        open={openConfirm}
+                                        onClose={() => setOpenConfirm(false)}
+                                        onConfirm={handleConfirmCalibration}
+                                        deviceName={device?.name}
+                                    />
                                 </Stack>
                                 <Typography>
                                     <b>Ngày HC kỳ trước:</b>{' '}

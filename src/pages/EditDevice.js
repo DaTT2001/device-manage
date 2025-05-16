@@ -30,10 +30,12 @@ const validationSchema = Yup.object({
     .required('Chu kỳ hiệu chuẩn là bắt buộc')
     .positive('Chu kỳ hiệu chuẩn phải là số dương')
     .integer('Chu kỳ hiệu chuẩn phải là số nguyên'),
-  phoneNumber: Yup.string()
-    .matches(/^\d+$/, 'Số điện thoại chỉ được chứa chữ số')
-    .nullable(),
-  cost: Yup.number().nullable().positive('Chi phí phải là số dương'),
+  // phoneNumber: Yup.string()
+  //   .matches(/^\d+$/, 'Số điện thoại chỉ được chứa chữ số')
+  //   .nullable(), // <-- Không required nữa
+  // cost: Yup.number()
+  //   .nullable()
+  //   .positive('Chi phí phải là số dương'), // <-- Không required nữa
   buyDate: Yup.string().nullable(),
   lastCalibrationDate: Yup.string().nullable(),
   selfCalibration: Yup.boolean(),
@@ -127,6 +129,7 @@ const EditDevice = () => {
       cost: trimmedValues.cost ? parseFloat(trimmedValues.cost) : null,
       calibrationFrequency: parseInt(trimmedValues.calibrationFrequency),
       usedBy: JSON.stringify(trimmedValues.usedBy),
+      phoneNumber: trimmedValues.phoneNumber ? trimmedValues.phoneNumber : null, // Sửa ở đây
     };
 
     ['buyDate', 'lastCalibrationDate'].forEach(field => {

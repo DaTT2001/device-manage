@@ -23,7 +23,7 @@ import { addDeviceApi } from '../utils/apiHelpers';
 const validationSchema = Yup.object({
   name: Yup.string().required('Tên thiết bị là bắt buộc'),
   code: Yup.string().required('Mã thiết bị là bắt buộc'),
-  brand: Yup.string().required('Thương hiệu là bắt buộc'),
+  // brand: Yup.string().required('Thương hiệu là bắt buộc'),
   type: Yup.string().required('Loại thiết bị là bắt buộc'),
   calibrationFrequency: Yup.number()
     .required('Chu kỳ hiệu chuẩn là bắt buộc')
